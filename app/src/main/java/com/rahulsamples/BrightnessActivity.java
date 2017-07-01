@@ -363,7 +363,6 @@ public class BrightnessActivity extends AppCompatActivity {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("content-type", "application/json");
                 conn.setDoOutput(true);
-
                 DataOutputStream outputStream=new DataOutputStream(conn.getOutputStream());
                 outputStream.write(new Gson().toJson(object).getBytes());
                 outputStream.flush();
@@ -392,6 +391,8 @@ public class BrightnessActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            System.out.println("SUCCESSSS :"+s.toString());        }
+            System.out.println("SUCCESSSS DONE:"+s.toString());
+
+        }
     }
 }
