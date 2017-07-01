@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Rahul Samples</string>
+    <string name="facebook_App_id">WqNoJbi61v8NLAaGjKtxA4caOr0=</string>
+    <string name="start_camera">Start Camera</string>
+    <string name="show">Show</string>
+    <string name="brightness">Brightness:</string>
+    <string name="sample_collections">Sample Collection</string>
+</resources>

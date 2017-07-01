@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_horizontal_margin"
+    tools:context="com.rahulsamples.SocialLoginActivity">
+
+    <TextView
+        android:id="@+id/tv_linked_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Linked In"
+        android:background="@drawable/background_curved_edges_blue"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textStyle="bold"
+        android:textSize="@dimen/text_regular"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+
+        />
+
+
+
+    <TextView
+        android:id="@+id/tv_Name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_regular"
+        />
+
+
+    <TextView
+        android:id="@+id/tv_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_regular"
+        />
+
+    <TextView
+        android:id="@+id/tv_profile_pic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_regular"
+        />
+
+    <TextView
+        android:id="@+id/tv_phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_regular"
+        />
+
+    <TextView
+        android:id="@+id/tv_social_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_regular"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+        />
+
+
+</LinearLayout>

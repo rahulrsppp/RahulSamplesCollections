@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "D:\\RahulSamplesCollections\\sampleapp\\build\\intermediates\\res\\merged\\debug\\menu\\main.xml",
+        "source": "D:\\RahulSamplesCollections\\sampleapp\\src\\main\\res\\menu\\main.xml"
+    },
+    {
+        "merged": "D:\\RahulSamplesCollections\\sampleapp\\build\\intermediates\\res\\merged\\debug\\menu\\api.xml",
+        "source": "D:\\RahulSamplesCollections\\sampleapp\\src\\main\\res\\menu\\api.xml"
+    },
+    {
+        "merged": "D:\\RahulSamplesCollections\\sampleapp\\build\\intermediates\\res\\merged\\debug\\menu\\deeplink.xml",
+        "source": "D:\\RahulSamplesCollections\\sampleapp\\src\\main\\res\\menu\\deeplink.xml"
+    }
+]
