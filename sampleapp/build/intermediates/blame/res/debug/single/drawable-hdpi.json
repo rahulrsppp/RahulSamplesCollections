@@ -112,12 +112,12 @@
         "source": "C:\\Users\\Admin\\.android\\build-cache\\cc8d889c923cbcd520b43ebc766e5a8a6bfc3a37\\output\\res\\drawable-hdpi\\abc_textfield_search_selected_holo_dark.9.png"
     },
     {
-        "merged": "D:\\RahulSamplesCollections\\sampleapp\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi\\abc_ab_stacked_solid_light_holo.9.png",
-        "source": "C:\\Users\\Admin\\.android\\build-cache\\cc8d889c923cbcd520b43ebc766e5a8a6bfc3a37\\output\\res\\drawable-hdpi\\abc_ab_stacked_solid_light_holo.9.png"
-    },
-    {
         "merged": "D:\\RahulSamplesCollections\\sampleapp\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi\\abc_spinner_ab_pressed_holo_dark.9.png",
         "source": "C:\\Users\\Admin\\.android\\build-cache\\cc8d889c923cbcd520b43ebc766e5a8a6bfc3a37\\output\\res\\drawable-hdpi\\abc_spinner_ab_pressed_holo_dark.9.png"
+    },
+    {
+        "merged": "D:\\RahulSamplesCollections\\sampleapp\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi\\abc_ab_stacked_solid_light_holo.9.png",
+        "source": "C:\\Users\\Admin\\.android\\build-cache\\cc8d889c923cbcd520b43ebc766e5a8a6bfc3a37\\output\\res\\drawable-hdpi\\abc_ab_stacked_solid_light_holo.9.png"
     },
     {
         "merged": "D:\\RahulSamplesCollections\\sampleapp\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi\\abc_textfield_search_default_holo_light.9.png",

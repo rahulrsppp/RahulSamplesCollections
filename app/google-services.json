@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "880559990838",
+    "firebase_url": "https://rahul-sample-collection.firebaseio.com",
+    "project_id": "rahul-sample-collection",
+    "storage_bucket": "rahul-sample-collection.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880559990838:android:439e0cda12270bee",
+        "android_client_info": {
+          "package_name": "com.rahulsamples"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "880559990838-vpj28aicoffafofjmqrgsam4vr7opg9v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rahulsamples",
+            "certificate_hash": "a8a1d42a2f4c9723e5cce4f234759fb9f7057917"
+          }
+        },
+        {
+          "client_id": "880559990838-5k98l0k66fnrfaafhcj4h7barvtnab2f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRBqU9RjI2BdGsJvbWkKg7Iqvm4lm3Jjg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "880559990838-5k98l0k66fnrfaafhcj4h7barvtnab2f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

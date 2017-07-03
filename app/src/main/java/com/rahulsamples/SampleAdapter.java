@@ -103,7 +103,6 @@ public class SampleAdapter extends RecyclerView.Adapter<SampleAdapter.ViewHolder
             holder.tv_sample.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.background_curved_edges_pink,null));
         }else if(adapterPosition %2==0){
             holder.tv_sample.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.background_curved_edges_blue,null));
-
         }else if(adapterPosition %3==0){
             holder.tv_sample.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.background_curved_edges_green,null));
         }else if(adapterPosition% 5==0){

@@ -27,6 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.rahulsamples.model.AppPreferenceManager;
+import com.rahulsamples.model.BrightnessResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -345,9 +347,7 @@ public class BrightnessActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-
             try {
-
                 JSONObject object=new JSONObject();
                 object.put("token","ecbcd7eaee29848978134beeecdfbc7c");
                 object.put("methodname","insertAppBrightness");
@@ -357,14 +357,16 @@ public class BrightnessActivity extends AppCompatActivity {
                 object.put("resolution",resolution);
                 object.put("device_id",device_id);
 
-                URL uri=new URL("https://firstjob.co.in/admin/Fjapi/");
+                System.out.print("}}} Request: "+object.toString());
+
+                URL uri=new URL("http://35.154.53.72/admin/Fjapi/");
 
                 HttpURLConnection conn= (HttpURLConnection) uri.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("content-type", "application/json");
                 conn.setDoOutput(true);
                 DataOutputStream outputStream=new DataOutputStream(conn.getOutputStream());
-                outputStream.write(new Gson().toJson(object).getBytes());
+                outputStream.writeBytes(object.toString());
                 outputStream.flush();
                 outputStream.close();
 
@@ -391,6 +393,15 @@ public class BrightnessActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
+            if(s !=null) {
+                BrightnessResponse response = new Gson().fromJson(s, BrightnessResponse.class);
+
+                if(response.code.equalsIgnoreCase("200")) {
+                    Toast.makeText(BrightnessActivity.this, "Successfully Updated to Server", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(BrightnessActivity.this, "An error occured: "+response.message, Toast.LENGTH_SHORT).show();
+                }
+            }
             System.out.println("SUCCESSSS DONE:"+s.toString());
 
         }
