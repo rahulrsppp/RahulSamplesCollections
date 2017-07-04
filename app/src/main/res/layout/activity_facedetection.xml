@@ -6,24 +6,30 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-    <com.rahulsamples.face_detection.CameraSourcePreview
+    <com.rahulsamples.facedetection.CameraSourcePreview
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.rahulsamples.face_detection.GraphicOverlay
+        <com.rahulsamples.facedetection.GraphicOverlay
             android:id="@+id/faceOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </com.rahulsamples.face_detection.CameraSourcePreview>
+    </com.rahulsamples.facedetection.CameraSourcePreview>
 
-    <LinearLayout
-        android:id="@+id/ll_threshold_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="@dimen/space_36"
-        android:background="@drawable/background_curved_edges_outline_only_blue"
-        android:orientation="horizontal" />
+
+
+        <LinearLayout
+            android:id="@+id/ll_threshold_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/space_36"
+            android:layout_marginRight="@dimen/space_36"
+            android:layout_marginTop="@dimen/space_36"
+            android:layout_marginBottom="@dimen/space_vxxlarge"
+            android:background="@drawable/background_curved_edges_outline_only_blue"
+            android:orientation="horizontal" />
+
 
 </FrameLayout>

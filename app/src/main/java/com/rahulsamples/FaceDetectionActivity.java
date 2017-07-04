@@ -4,17 +4,27 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -27,14 +37,15 @@ import com.google.android.gms.vision.face.FaceDetector;
 import com.rahulsamples.facedetection.CameraSourcePreview;
 import com.rahulsamples.facedetection.FaceGraphic;
 import com.rahulsamples.facedetection.GraphicOverlay;
-
+import com.rahulsamples.model.AppPreferenceManager;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FaceDetectionActivity extends AppCompatActivity {
+public class FaceDetectionActivity extends AppCompatActivity implements CommonInterface {
 
     private static final String LOGTAG = FaceDetectionActivity.class.getSimpleName();
     @Bind(R.id.preview)
@@ -50,12 +61,25 @@ public class FaceDetectionActivity extends AppCompatActivity {
     private static final int RC_HANDLE_CAMERA_PERM = 2;
 
 
+    private int leftMargin;
+    private int rightMargin;
+    private int topMargin;
+    private int bottomMargin;
+    private int screenWidth;
+    private int screenHeight;
+    private int layoutHeight;
+    private int layoutWidth;
+    private AppPreferenceManager appPreferenceManager;
+    //  private Dialog dialog;
+
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facedetection);
         ButterKnife.bind(this);
+        appPreferenceManager = new AppPreferenceManager(this);
 
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
@@ -70,12 +94,30 @@ public class FaceDetectionActivity extends AppCompatActivity {
         }
 
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) ll_threshold_view.getLayoutParams();
-        int left=lp.leftMargin;
-        int right=lp.rightMargin;
-        int top=lp.topMargin;
-        int bottom=lp.bottomMargin;
+        leftMargin = lp.leftMargin;
+        rightMargin = lp.rightMargin;
+        topMargin = lp.topMargin;
+        bottomMargin = lp.bottomMargin;
 
-        System.out.println("left: "+left +" right: "+right + " top: "+top+" bottom: "+bottom);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        screenWidth = displayMetrics.widthPixels;
+        screenHeight = displayMetrics.heightPixels;
+
+        layoutHeight = screenHeight - (bottomMargin + topMargin);
+        layoutWidth = screenWidth - (leftMargin + rightMargin);
+
+
+        System.out.println("left: " + leftMargin +
+                " right: " + rightMargin +
+                " top: " + topMargin +
+                " bottom: " + bottomMargin +
+                " Screen width: " + screenWidth +
+                " Screen height: " + screenHeight +
+                " Threshold height: " + layoutHeight +
+                " Threshold Width: " + layoutWidth
+        );
 
     }
 
@@ -142,6 +184,49 @@ public class FaceDetectionActivity extends AppCompatActivity {
                 .build();
     }
 
+    @Override
+    public void isOutsideOfThresholdRectangle(Object object) {
+
+       /* if(object!=null && object.toString().length()>0) {
+            String side = (String) object;
+            Toast.makeText(FaceDetectionActivity.this, "Wrong Side: " + side, Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(FaceDetectionActivity.this, "Seedhe Dekh lo Yaar", Toast.LENGTH_SHORT).show();
+        }*/
+        if (appPreferenceManager.getPositionCheckStatus()) {
+
+            showDialog();
+        }
+
+    }
+
+
+    private void showDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.dialog_pending_interview);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+
+        TextView tvMessage = (TextView) dialog.findViewById(R.id.tvMessage);
+        tvMessage.setText(getString(R.string.wrong_position));
+
+        Button btn_yes = (Button) dialog.findViewById(R.id.btn_yes);
+
+        btn_yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                appPreferenceManager.savePositionCheckStatus(true);
+            }
+        });
+        dialog.show();
+        appPreferenceManager.savePositionCheckStatus(false);
+
+    }
+
+
     private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
         @Override
         public Tracker<Face> create(Face face) {
@@ -159,7 +244,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
 
         GraphicFaceTracker(GraphicOverlay overlay) {
             mOverlay = overlay;
-            mFaceGraphic = new FaceGraphic(overlay);
+            mFaceGraphic = new FaceGraphic(overlay, FaceDetectionActivity.this);
         }
 
         /**
@@ -187,12 +272,11 @@ public class FaceDetectionActivity extends AppCompatActivity {
         @Override
         public void onMissing(FaceDetector.Detections<Face> detectionResults) {
             mOverlay.remove(mFaceGraphic);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(FaceDetectionActivity.this,"Seedhe Dekh Bey..",Toast.LENGTH_SHORT).show();
-                }
-            });
+
+            if (appPreferenceManager.getPositionCheckStatus()) {
+                showDialog();
+            }
+
         }
 
         /**
@@ -201,7 +285,8 @@ public class FaceDetectionActivity extends AppCompatActivity {
          */
         @Override
         public void onDone() {
-            mOverlay.remove(mFaceGraphic);
+        mOverlay.remove(mFaceGraphic);
+
         }
     }
 
@@ -254,4 +339,40 @@ public class FaceDetectionActivity extends AppCompatActivity {
     }
 
 
+    public int getLeftMargin() {
+        return leftMargin;
+    }
+
+    public int getRightMargin() {
+        return rightMargin;
+    }
+
+    public int getTopMargin() {
+        return topMargin;
+    }
+
+    public int getBottomMargin() {
+        return bottomMargin;
+    }
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
+    }
+
+    public int getLayoutHeight() {
+        return layoutHeight;
+    }
+
+    public int getLayoutWidth() {
+        return layoutWidth;
+    }
+
+
 }
+
+
+

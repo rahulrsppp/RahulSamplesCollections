@@ -16,15 +16,23 @@
 
 package com.rahulsamples.facedetection;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.widget.Toast;
 
 import com.google.android.gms.vision.face.Face;
+import com.rahulsamples.CommonInterface;
+import com.rahulsamples.FaceDetectionActivity;
+import com.rahulsamples.model.AppPreferenceManager;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
-        * Graphic instance for rendering face position, orientation, and landmarks within an associated
-        * graphic overlay view.*/
+ * Graphic instance for rendering face position, orientation, and landmarks within an associated
+ * graphic overlay view.*/
 
 
 public class FaceGraphic extends GraphicOverlay.Graphic {
@@ -43,7 +51,13 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
             Color.WHITE,
             Color.YELLOW
     };
+    private static final int LEFT = 1;
+    private static final int RIGHT = 2;
+    private static final int TOP = 3;
+    private static final int BOTTOM = 4;
     private static int mCurrentColorIndex = 0;
+    private  AppPreferenceManager appPreferenceManager;
+    private CommonInterface commonInterface;
 
     private Paint mFacePositionPaint;
     private Paint mIdPaint;
@@ -52,10 +66,19 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
     private volatile Face mFace;
     private int mFaceId;
     private float mFaceHappiness;
+    private Context context;
+    private Timer timerLeft;
+    private boolean isFaceWrongPositioned_Left;
+    private boolean isFaceWrongPositioned_Right;
+    private boolean isFaceWrongPositioned_Top;
+    private boolean isFaceWrongPositioned_Bottom;
 
-    public FaceGraphic(GraphicOverlay overlay) {
+    public FaceGraphic(GraphicOverlay overlay,Context context) {
         super(overlay);
+        commonInterface=(CommonInterface) context;
 
+        appPreferenceManager=new AppPreferenceManager(context);
+        this.context=context;
         mCurrentColorIndex = (mCurrentColorIndex + 1) % COLOR_CHOICES.length;
         final int selectedColor =  Color.YELLOW;
 
@@ -105,11 +128,11 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         //   canvas.drawText("id: " + mFaceId, x + ID_X_OFFSET, y + ID_Y_OFFSET, mIdPaint);
 
 
-        canvas.drawText("Face Width: " + face.getWidth(), x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
+        /*canvas.drawText("Face Width: " + face.getWidth(), x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
         canvas.drawText("Face Height: " +face.getHeight() , x+ ID_X_OFFSET  , y -ID_Y_OFFSET * 2, mIdPaint);
         canvas.drawText("Face Position: " + face.getPosition(), x+ ID_X_OFFSET , y - ID_Y_OFFSET*3, mIdPaint);
         canvas.drawText("x: " + x, x + ID_X_OFFSET, y - ID_Y_OFFSET*4, mIdPaint);
-        canvas.drawText("y: " + y, x + ID_X_OFFSET, y - ID_Y_OFFSET*5, mIdPaint);
+        canvas.drawText("y: " + y, x + ID_X_OFFSET, y - ID_Y_OFFSET*5, mIdPaint);*/
 
         // Draws a bounding box around the face.
         float xOffset = scaleX(face.getWidth() / 2.0f);
@@ -120,13 +143,136 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         float bottom = y + yOffset;
 
 
-
         canvas.drawText("Left: " + left, x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
         canvas.drawText("Right: " +right, x+ ID_X_OFFSET  , y -ID_Y_OFFSET * 2, mIdPaint);
         canvas.drawText("Top: " + top, x+ ID_X_OFFSET , y - ID_Y_OFFSET*3, mIdPaint);
         canvas.drawText("Bottom: " + bottom, x + ID_X_OFFSET, y - ID_Y_OFFSET*4, mIdPaint);
 
 
+
+        if(left<0 || top<0){
+            commonInterface.isOutsideOfThresholdRectangle("");
+        }
+
+        checkAndCallInterface(left, top, right, bottom);
+
+
         canvas.drawRect(left, top, right, bottom, mBoxPaint);
     }
+
+    private void checkAndCallInterface(float left, float top, float right, float bottom) {
+        isFaceWrongPositioned_Left= getLeftDifferenceStatus(left); //could be positive for correct video recording. Should Be FALSE
+        isFaceWrongPositioned_Right= getRightDifferenceStatus(right); //could be positive for correct video recording. Should Be FALSE
+        isFaceWrongPositioned_Top= getTopDifferenceStatus(top); //could be positive for correct video recording. Should Be FALSE
+        isFaceWrongPositioned_Bottom= getBottomDifferenceStatus(bottom); //could be positive for correct video recording. Should Be FALSE
+
+        if(isFaceWrongPositioned_Left){
+            commonInterface.isOutsideOfThresholdRectangle("Left");
+        }
+
+        if(isFaceWrongPositioned_Right){
+            commonInterface.isOutsideOfThresholdRectangle("Right");
+        }
+
+        if(isFaceWrongPositioned_Top){
+            commonInterface.isOutsideOfThresholdRectangle("Top");
+        }
+
+        if(isFaceWrongPositioned_Bottom){
+            commonInterface.isOutsideOfThresholdRectangle("Bottom");
+        }
+    }
+
+
+
+
+    private boolean getLeftDifferenceStatus(float left) {
+        int leftMargin= ((FaceDetectionActivity)context).getLeftMargin();
+        int leftInnerRect= (int) left;
+
+        int differenceLeft=leftInnerRect-leftMargin;
+
+        if(differenceLeft < 0) {
+            System.out.println("::: Left Difference: " + differenceLeft);
+        }
+
+        return differenceLeft < 0;
+    }
+
+    private boolean getRightDifferenceStatus(float right) {
+        int rightMargin= ((FaceDetectionActivity)context).getRightMargin();
+        int screenWidth= ((FaceDetectionActivity)context).getScreenWidth();
+
+        int outerRect_RightSidePosition_fromLeft=screenWidth-rightMargin;
+        int rightInnerRect= (int) right;
+
+        int differenceRight=outerRect_RightSidePosition_fromLeft-rightInnerRect;
+
+        if(differenceRight < 0) {
+            System.out.println("::: Right Difference: " + differenceRight);
+        }
+
+        return differenceRight < 0;
+    }
+
+    private boolean getTopDifferenceStatus(float top) {
+        int topMargin= ((FaceDetectionActivity)context).getTopMargin();
+        int topInnerRect= (int) top;
+
+        int differenceTop=topInnerRect-topMargin;
+
+        if(differenceTop < 0) {
+            System.out.println("::: Top Difference: " + differenceTop);
+        }
+
+        return differenceTop < 0;
+    }
+
+    private boolean getBottomDifferenceStatus(float bottom) {
+
+        int bottomMargin= ((FaceDetectionActivity)context).getBottomMargin();
+        int screenHeight= ((FaceDetectionActivity)context).getScreenHeight();
+
+        int outerRect_BottomSidePosition_fromTop=screenHeight-bottomMargin;
+        int bottomInnerRect= (int) bottom;
+
+        int differenceBottom=outerRect_BottomSidePosition_fromTop-bottomInnerRect;
+
+        if(differenceBottom < 0) {
+            System.out.println("::: Bottom Difference: " + differenceBottom);
+        }
+
+        return differenceBottom < 0;
+
+    }
+
+
+    private void startTimer(Timer timer,final int type) {
+        timer.scheduleAtFixedRate(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        reCheckDifference(type);
+                    }
+                },
+                1000, 3000);
+    }
+
+    private void reCheckDifference(int type) {
+
+        switch (type){
+            case LEFT:
+
+                break;
+            case RIGHT:
+                break;
+            case TOP:
+                break;
+            case BOTTOM:
+                break;
+        }
+
+    }
+
+
 }

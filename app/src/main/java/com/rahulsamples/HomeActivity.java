@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.rahulsamples.model.AppPreferenceManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class HomeActivity extends AppCompatActivity {
     RecyclerView rv_options;
     private List<String> sampleList;
     private SampleAdapter sampleAdapter;
+    private AppPreferenceManager appPreferenceManager;
 
 
     @Override
@@ -28,6 +31,7 @@ public class HomeActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setAdapter();
         setList();
+         appPreferenceManager=new AppPreferenceManager(this);
     }
 
     private void setList() {
@@ -35,6 +39,13 @@ public class HomeActivity extends AppCompatActivity {
         sampleList.add("Brightness Manager");
         sampleList.add("Face Detection");
         sampleAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appPreferenceManager.removeValues(this);
+
     }
 
     private void setAdapter() {

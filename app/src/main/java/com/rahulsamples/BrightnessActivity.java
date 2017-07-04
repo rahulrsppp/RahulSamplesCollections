@@ -239,9 +239,9 @@ public class BrightnessActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    tv_count.setText(String.valueOf(level));    }
+                                    tv_count.setText(String.valueOf(level));
+                                }
                             });
-
                         }
                     },
                     1000, 5000);

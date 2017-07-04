@@ -5,4 +5,9 @@
     <string name="show">Show</string>
     <string name="brightness">Brightness:</string>
     <string name="sample_collections">Sample Collection</string>
+    <string name="dialog_title">Alert</string>
+    <string name="wrong_position">Please look straight</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="ok">ok</string>
 </resources>
