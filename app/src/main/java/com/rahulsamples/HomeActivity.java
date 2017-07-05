@@ -36,7 +36,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setList() {
        sampleList.add("Social Login");
-        sampleList.add("Brightness Manager");
+       sampleList.add("Brightness Manager");
         sampleList.add("Face Detection");
         sampleAdapter.notifyDataSetChanged();
     }

@@ -4,28 +4,22 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -40,7 +34,8 @@ import com.rahulsamples.facedetection.GraphicOverlay;
 import com.rahulsamples.model.AppPreferenceManager;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -70,6 +65,12 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
     private int layoutHeight;
     private int layoutWidth;
     private AppPreferenceManager appPreferenceManager;
+
+    public int getFaceIdListSize() {
+        return faceIdList.size();
+    }
+
+    public List<Integer> faceIdList;
     //  private Dialog dialog;
 
 
@@ -79,6 +80,7 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facedetection);
         ButterKnife.bind(this);
+        faceIdList=new ArrayList<>();
         appPreferenceManager = new AppPreferenceManager(this);
 
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
@@ -186,31 +188,28 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
 
     @Override
     public void isOutsideOfThresholdRectangle(Object object) {
-
-       /* if(object!=null && object.toString().length()>0) {
-            String side = (String) object;
-            Toast.makeText(FaceDetectionActivity.this, "Wrong Side: " + side, Toast.LENGTH_SHORT).show();
-        }else {
-            Toast.makeText(FaceDetectionActivity.this, "Seedhe Dekh lo Yaar", Toast.LENGTH_SHORT).show();
-        }*/
+        String type = (String) object;
         if (appPreferenceManager.getPositionCheckStatus()) {
-
-            showDialog();
+            if(type.equalsIgnoreCase("Far")){
+                showDialog("User is so far from camera");
+            }else if (type.equalsIgnoreCase("Multiple Faces")){
+                showDialog("Double faces detected");
+            }else {
+                showDialog(getString(R.string.wrong_position));
+            }
         }
-
     }
 
 
-    private void showDialog() {
+    private void showDialog(String message) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.dialog_pending_interview);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-
         TextView tvMessage = (TextView) dialog.findViewById(R.id.tvMessage);
-        tvMessage.setText(getString(R.string.wrong_position));
+        tvMessage.setText(message);
 
         Button btn_yes = (Button) dialog.findViewById(R.id.btn_yes);
 
@@ -253,6 +252,7 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
         @Override
         public void onNewItem(int faceId, Face item) {
             mFaceGraphic.setId(faceId);
+            faceIdList.add(faceId);
         }
 
         /**
@@ -272,11 +272,9 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
         @Override
         public void onMissing(FaceDetector.Detections<Face> detectionResults) {
             mOverlay.remove(mFaceGraphic);
-
             if (appPreferenceManager.getPositionCheckStatus()) {
-                showDialog();
+                showDialog("USER ABSENT");
             }
-
         }
 
         /**
@@ -285,7 +283,27 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
          */
         @Override
         public void onDone() {
-        mOverlay.remove(mFaceGraphic);
+            mOverlay.remove(mFaceGraphic);
+
+               /* int faceId= mFaceGraphic.getFaceId();
+                System.out.println("FaceId: "+faceId);
+                for(int fid:faceIdList) {
+                    if (fid==faceId) {
+                        faceIdList.remove(fid);
+                        System.out.println("Removed : "+faceId);
+                        break;
+                    }
+            }*/
+        //    faceIdList.clear();
+            /*int faceId= mFaceGraphic.getFaceId();
+            System.out.println("FaceId: "+faceId);
+
+            for(int fid:faceIdList) {
+                if (fid==faceId) {
+                    faceIdList.remove(fid);
+                    System.out.println("Removed : "+faceId);
+                }
+            }*/
 
         }
     }

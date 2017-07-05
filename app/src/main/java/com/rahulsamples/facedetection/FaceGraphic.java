@@ -72,6 +72,10 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
     private boolean isFaceWrongPositioned_Right;
     private boolean isFaceWrongPositioned_Top;
     private boolean isFaceWrongPositioned_Bottom;
+    private int rightDifference;
+    private int topDifference;
+    private int bottomDifference;
+    private int leftDifference;
 
     public FaceGraphic(GraphicOverlay overlay,Context context) {
         super(overlay);
@@ -93,6 +97,10 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         mBoxPaint.setColor(Color.BLUE);
         mBoxPaint.setStyle(Paint.Style.STROKE);
         mBoxPaint.setStrokeWidth(BOX_STROKE_WIDTH);
+    }
+
+    public int getFaceId() {
+        return mFaceId;
     }
 
     public void setId(int id) {
@@ -124,8 +132,8 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         // Draws a circle at the position of the detected face, with the face's track id below.
         float x = translateX(face.getPosition().x + face.getWidth() / 2);
         float y = translateY(face.getPosition().y + face.getHeight() / 2);
-        //  canvas.drawCircle(x, y, FACE_POSITION_RADIUS, mFacePositionPaint);
-        //   canvas.drawText("id: " + mFaceId, x + ID_X_OFFSET, y + ID_Y_OFFSET, mIdPaint);
+      //  canvas.drawCircle(x, y, FACE_POSITION_RADIUS, mFacePositionPaint);
+      //  canvas.drawText("id: " + mFaceId, x + ID_X_OFFSET, y + ID_Y_OFFSET, mIdPaint);
 
 
         /*canvas.drawText("Face Width: " + face.getWidth(), x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
@@ -143,11 +151,11 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         float bottom = y + yOffset;
 
 
-        canvas.drawText("Left: " + left, x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
+
+        /*canvas.drawText("Left: " + left, x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
         canvas.drawText("Right: " +right, x+ ID_X_OFFSET  , y -ID_Y_OFFSET * 2, mIdPaint);
         canvas.drawText("Top: " + top, x+ ID_X_OFFSET , y - ID_Y_OFFSET*3, mIdPaint);
-        canvas.drawText("Bottom: " + bottom, x + ID_X_OFFSET, y - ID_Y_OFFSET*4, mIdPaint);
-
+        canvas.drawText("Bottom: " + bottom, x + ID_X_OFFSET, y - ID_Y_OFFSET*4, mIdPaint);*/
 
 
         if(left<0 || top<0){
@@ -155,9 +163,31 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         }
 
         checkAndCallInterface(left, top, right, bottom);
+        checkUserPositionFromCamera();
 
+        /*canvas.drawText("Left_Diff: " + leftDifference, x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
+        canvas.drawText("Right_Diff: " +rightDifference, x+ ID_X_OFFSET  , y -ID_Y_OFFSET * 2, mIdPaint);
+        canvas.drawText("Top_Diff: " + topDifference, x+ ID_X_OFFSET , y - ID_Y_OFFSET*3, mIdPaint);
+        canvas.drawText("Bottom_Diff: " + bottomDifference, x + ID_X_OFFSET, y - ID_Y_OFFSET*4, mIdPaint);*/
+        System.out.println("!!!! FaceId ListSize: " + ((FaceDetectionActivity)context).getFaceIdListSize());
 
+     /*   if(((FaceDetectionActivity)context).getFaceIdListSize()>1){
+            commonInterface.isOutsideOfThresholdRectangle("Multiple Faces");
+        }*/
         canvas.drawRect(left, top, right, bottom, mBoxPaint);
+    }
+
+    private void checkUserPositionFromCamera() {
+
+       int screenWidth= ((FaceDetectionActivity)context).getScreenWidth();
+       int farThreshold= (int) (screenWidth*0.4861);
+
+
+        if(leftDifference+rightDifference>farThreshold){
+            System.out.println("++++++ Far Threshold: " + farThreshold);
+            commonInterface.isOutsideOfThresholdRectangle("Far");
+        }
+
     }
 
     private void checkAndCallInterface(float left, float top, float right, float bottom) {
@@ -165,6 +195,7 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         isFaceWrongPositioned_Right= getRightDifferenceStatus(right); //could be positive for correct video recording. Should Be FALSE
         isFaceWrongPositioned_Top= getTopDifferenceStatus(top); //could be positive for correct video recording. Should Be FALSE
         isFaceWrongPositioned_Bottom= getBottomDifferenceStatus(bottom); //could be positive for correct video recording. Should Be FALSE
+
 
         if(isFaceWrongPositioned_Left){
             commonInterface.isOutsideOfThresholdRectangle("Left");
@@ -184,13 +215,12 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
     }
 
 
-
-
     private boolean getLeftDifferenceStatus(float left) {
         int leftMargin= ((FaceDetectionActivity)context).getLeftMargin();
         int leftInnerRect= (int) left;
 
         int differenceLeft=leftInnerRect-leftMargin;
+         leftDifference=leftInnerRect-leftMargin;
 
         if(differenceLeft < 0) {
             System.out.println("::: Left Difference: " + differenceLeft);
@@ -206,7 +236,8 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         int outerRect_RightSidePosition_fromLeft=screenWidth-rightMargin;
         int rightInnerRect= (int) right;
 
-        int differenceRight=outerRect_RightSidePosition_fromLeft-rightInnerRect;
+          int differenceRight=outerRect_RightSidePosition_fromLeft-rightInnerRect;
+         rightDifference=outerRect_RightSidePosition_fromLeft-rightInnerRect;
 
         if(differenceRight < 0) {
             System.out.println("::: Right Difference: " + differenceRight);
@@ -220,6 +251,7 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         int topInnerRect= (int) top;
 
         int differenceTop=topInnerRect-topMargin;
+         topDifference=topInnerRect-topMargin;
 
         if(differenceTop < 0) {
             System.out.println("::: Top Difference: " + differenceTop);
@@ -237,6 +269,7 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         int bottomInnerRect= (int) bottom;
 
         int differenceBottom=outerRect_BottomSidePosition_fromTop-bottomInnerRect;
+        bottomDifference=outerRect_BottomSidePosition_fromTop-bottomInnerRect;
 
         if(differenceBottom < 0) {
             System.out.println("::: Bottom Difference: " + differenceBottom);
@@ -245,34 +278,4 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         return differenceBottom < 0;
 
     }
-
-
-    private void startTimer(Timer timer,final int type) {
-        timer.scheduleAtFixedRate(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        reCheckDifference(type);
-                    }
-                },
-                1000, 3000);
-    }
-
-    private void reCheckDifference(int type) {
-
-        switch (type){
-            case LEFT:
-
-                break;
-            case RIGHT:
-                break;
-            case TOP:
-                break;
-            case BOTTOM:
-                break;
-        }
-
-    }
-
-
 }
