@@ -19,6 +19,10 @@ import com.linkedin.platform.utils.Scope;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -55,7 +59,61 @@ public class SocialLoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setListener();
 
+        // Method to check Internet connectivity
+        Thread thread= new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // System.out.println("Online: " +(testInet("https://firstjob.co.in")/*|| testInet("google.com") || testInet("amazon.com")*/));
+                System.out.println("Online: " +isReachableByPing("firstjob.co.in"));
+            }
+        });
+        thread.start();
 
+    }
+
+    // Method to check Internet connectivity
+    public static boolean isReachableByPing(String host) {
+        try{
+            String cmd = "";
+            if(System.getProperty("os.name").startsWith("Windows")) {
+                // For Windows
+                cmd = "ping -n 1 " + host;
+            } else {
+                // For Linux and OSX
+                cmd = "ping -c 1 " + host;
+            }
+
+            Process myProcess = Runtime.getRuntime().exec(cmd);
+            myProcess.waitFor();
+
+            if(myProcess.exitValue() == 0) {
+
+                return true;
+            } else {
+
+                return false;
+            }
+
+        } catch( Exception e ) {
+
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Method to check Internet connectivity
+    public static boolean testInet(String site) {
+        Socket sock = new Socket();
+        InetSocketAddress addr = new InetSocketAddress(site,80);
+        try {
+            sock.connect(addr,3000);
+            return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {sock.close();}
+            catch (IOException e) {}
+        }
     }
 
     private void setListener() {
@@ -63,16 +121,16 @@ public class SocialLoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LISessionManager.getInstance(getApplicationContext()).init(SocialLoginActivity.this, buildScope(), new AuthListener() {
-                            @Override
-                            public void onAuthSuccess() {
-                                login();
-                            }
+                    @Override
+                    public void onAuthSuccess() {
+                        login();
+                    }
 
-                            @Override
-                            public void onAuthError(LIAuthError error) {
-                                Toast.makeText(getApplicationContext(), "failed " + error.toString(), Toast.LENGTH_LONG).show();
-                            }
-                        }, true);
+                    @Override
+                    public void onAuthError(LIAuthError error) {
+                        Toast.makeText(getApplicationContext(), "failed " + error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }, true);
             }
         });
     }

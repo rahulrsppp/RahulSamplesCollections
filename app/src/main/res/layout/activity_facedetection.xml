@@ -13,7 +13,7 @@
 
         <com.rahulsamples.facedetection.GraphicOverlay
             android:id="@+id/faceOverlay"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent" />
 
     </com.rahulsamples.facedetection.CameraSourcePreview>
@@ -24,10 +24,7 @@
             android:id="@+id/ll_threshold_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/space_36"
-            android:layout_marginRight="@dimen/space_36"
-            android:layout_marginTop="@dimen/space_36"
-            android:layout_marginBottom="@dimen/space_vxxlarge"
+            android:layout_margin="@dimen/space_28"
             android:background="@drawable/background_curved_edges_outline_only_blue"
             android:orientation="horizontal" />
 

@@ -152,10 +152,10 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
 
 
 
-        /*canvas.drawText("Left: " + left, x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
+        canvas.drawText("Left: " + left, x+ ID_X_OFFSET , y - ID_Y_OFFSET, mIdPaint);
         canvas.drawText("Right: " +right, x+ ID_X_OFFSET  , y -ID_Y_OFFSET * 2, mIdPaint);
         canvas.drawText("Top: " + top, x+ ID_X_OFFSET , y - ID_Y_OFFSET*3, mIdPaint);
-        canvas.drawText("Bottom: " + bottom, x + ID_X_OFFSET, y - ID_Y_OFFSET*4, mIdPaint);*/
+        canvas.drawText("Bottom: " + bottom, x + ID_X_OFFSET, y - ID_Y_OFFSET*4, mIdPaint);
 
 
         if(left<0 || top<0){
@@ -217,16 +217,16 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
 
     private boolean getLeftDifferenceStatus(float left) {
         int leftMargin= ((FaceDetectionActivity)context).getLeftMargin();
-        int leftInnerRect= (int) left;
+        int leftInnerRect= (int) left/2;
 
         int differenceLeft=leftInnerRect-leftMargin;
-         leftDifference=leftInnerRect-leftMargin;
+         leftDifference=leftInnerRect/2-leftMargin;
 
-        if(differenceLeft < 0) {
+        if(differenceLeft < 10) {
             System.out.println("::: Left Difference: " + differenceLeft);
         }
 
-        return differenceLeft < 0;
+        return differenceLeft < 10;
     }
 
     private boolean getRightDifferenceStatus(float right) {
@@ -239,11 +239,12 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
           int differenceRight=outerRect_RightSidePosition_fromLeft-rightInnerRect;
          rightDifference=outerRect_RightSidePosition_fromLeft-rightInnerRect;
 
-        if(differenceRight < 0) {
+
+        if(differenceRight < -80) {
             System.out.println("::: Right Difference: " + differenceRight);
         }
 
-        return differenceRight < 0;
+        return differenceRight < -80;
     }
 
     private boolean getTopDifferenceStatus(float top) {
@@ -253,7 +254,7 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         int differenceTop=topInnerRect-topMargin;
          topDifference=topInnerRect-topMargin;
 
-        if(differenceTop < 0) {
+        if(differenceTop >0) {
             System.out.println("::: Top Difference: " + differenceTop);
         }
 
@@ -271,11 +272,11 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         int differenceBottom=outerRect_BottomSidePosition_fromTop-bottomInnerRect;
         bottomDifference=outerRect_BottomSidePosition_fromTop-bottomInnerRect;
 
-        if(differenceBottom < 0) {
+        if(differenceBottom <55) {
             System.out.println("::: Bottom Difference: " + differenceBottom);
         }
 
-        return differenceBottom < 0;
+        return differenceBottom <55;
 
     }
 }
