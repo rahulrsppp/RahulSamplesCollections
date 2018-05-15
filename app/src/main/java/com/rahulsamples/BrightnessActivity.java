@@ -1,11 +1,16 @@
 package com.rahulsamples;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -13,11 +18,12 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Size;
+import android.util.SparseIntArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -27,7 +33,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.rahulsamples.model.AppPreferenceManager;
 import com.rahulsamples.model.BrightnessResponse;
 
 import org.json.JSONException;
@@ -35,6 +40,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -44,29 +50,32 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class BrightnessActivity extends AppCompatActivity {
 
     private static final String LOGTAG = BrightnessActivity.class.getSimpleName();
     private static final int PERMISSION_REQUEST_CODE = 123;
     private static String ACCESS_TOKEN;
-    @Bind(R.id.sv_camera)
+    @ BindView(R.id.sv_camera)
     SurfaceView sv_camera;
-    @Bind(R.id.ll_other_options)
+    @ BindView(R.id.ll_other_options)
     LinearLayout ll_other_options;
-    @Bind(R.id.btn_sub)
+    @ BindView(R.id.btn_sub)
     Button btn_sub;
-    @Bind(R.id.btn_add)
+    @ BindView(R.id.btn_add)
     Button btn_add;
-    @Bind(R.id.tv_count)
+    @ BindView(R.id.tv_count)
     TextView tv_count;
-    @Bind(R.id.btn_timer)
+    @ BindView(R.id.btn_timer)
     Button btn_timer;
-    @Bind(R.id.btn_camera)
+    @ BindView(R.id.btn_camera)
     Button btn_camera;
-    @Bind(R.id.btn_other_options)
+    @BindView(R.id.btn_other_options)
     Button btn_other_options;
 
     private boolean isCameraOpen,isOptionsVisible,isTimerStarted;
@@ -82,6 +91,19 @@ public class BrightnessActivity extends AppCompatActivity {
     private int level;
 
 
+    private Camera mCamera;
+    private Size mVideoSize;
+    private Integer mSensorOrientation;
+    private MediaRecorder mediaRecorder;
+    private boolean mIsRecordingVideo;
+
+    private static final int SENSOR_ORIENTATION_DEFAULT_DEGREES = 90;
+    private static final int SENSOR_ORIENTATION_INVERSE_DEGREES = 270;
+
+    private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
+    private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
+    public static final int RequestPermissionCode = 1;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,17 +113,23 @@ public class BrightnessActivity extends AppCompatActivity {
         setListener();
         ll_other_options.setVisibility(View.GONE);
 
-        checkCameraAndStoragePermission();
 
         if(!Settings.System.canWrite(this)) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
-            intent.setData(Uri.parse("package:" + getPackageName()));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            checkSystemWritePermission();
         }
+
+        mediaRecorder = new MediaRecorder();
         surfaceHolder=sv_camera.getHolder();
 
 
+    }
+
+   public void checkSystemWritePermission(){
+
+       Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
+       intent.setData(Uri.parse("package:" + getPackageName()));
+       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+       startActivity(intent);
     }
 
     private void setListener() {
@@ -109,15 +137,18 @@ public class BrightnessActivity extends AppCompatActivity {
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(!isCameraOpen){
-                    isCameraOpen=true;
-                    btn_camera.setText("Stop Camera");
-                    openCamera(surfaceHolder);
+                if (checkPermissionOnButtonClick()) {
+                    if (!isCameraOpen) {
+                        isCameraOpen = true;
+                        btn_camera.setText("Stop Camera");
+                        openCamera(surfaceHolder);
+                    } else {
+                        isCameraOpen = false;
+                        stopCamera();
+                        btn_camera.setText("Start Camera");
+                    }
                 }else{
-                    isCameraOpen=false;
-                    stopCamera();
-                    btn_camera.setText("Start Camera");
+                    checkPermission();
                 }
             }
         });
@@ -145,21 +176,25 @@ public class BrightnessActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if(!isTimerStarted){
-                    isTimerStarted=true;
+
                     btn_timer.setText("Stop Timer");
-                    btn_timer.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.button_disable,null));
+                    isTimerStarted=true;
+                   /* btn_timer.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.button_disable,null));
                     btn_timer.setTextColor(ResourcesCompat.getColor(getResources(),R.color.black,null));
-                    startTimer();
+                    startTimer();*/
 
                 }else{
                     isTimerStarted=false;
                     btn_timer.setText("Start Timer");
-                    btn_timer.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.discussion_form_toolbar,null));
+                   /* btn_timer.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.discussion_form_toolbar,null));
                     btn_timer.setTextColor(ResourcesCompat.getColor(getResources(),R.color.white,null));
                     stopTimer();
-                    fetchAndSendValueToServer();
+                    fetchAndSendValueToServer();*/
 
                 }
+
+                triggerRecording();
+
             }
         });
 
@@ -167,29 +202,39 @@ public class BrightnessActivity extends AppCompatActivity {
         btn_sub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int level=0;
+                if(!Settings.System.canWrite(BrightnessActivity.this)) {
+                    checkSystemWritePermission();
+                }else {
 
-                if(Integer.parseInt(tv_count.getText().toString())-5>0){
-                    level=Integer.parseInt(tv_count.getText().toString())-5;
-                }else{
-                    level=0;
+                    int level = 0;
+
+                    if (Integer.parseInt(tv_count.getText().toString()) - 5 > 0) {
+                        level = Integer.parseInt(tv_count.getText().toString()) - 5;
+                    } else {
+                        level = 0;
+                    }
+                    setBrightnessLevel(level);
+                    tv_count.setText(String.valueOf(level));
                 }
-                setBrightnessLevel(level);
-                tv_count.setText(String.valueOf(level));
             }
         });
 
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int level=0;
-                if(Integer.parseInt(tv_count.getText().toString())+5<=255){
-                    level=Integer.parseInt(tv_count.getText().toString())+5;
-                }else{
-                    level=255;
+                if(!Settings.System.canWrite(BrightnessActivity.this)) {
+                    checkSystemWritePermission();
+                }else {
+
+                    int level = 0;
+                    if (Integer.parseInt(tv_count.getText().toString()) + 5 <= 255) {
+                        level = Integer.parseInt(tv_count.getText().toString()) + 5;
+                    } else {
+                        level = 255;
+                    }
+                    setBrightnessLevel(level);
+                    tv_count.setText(String.valueOf(level));
                 }
-                setBrightnessLevel(level);
-                tv_count.setText(String.valueOf(level));
             }
         });
     }
@@ -216,8 +261,6 @@ public class BrightnessActivity extends AppCompatActivity {
         resolution=width + " * "+height;
 
         System.out.println(" Current Brightness: "+currentBrightnessLevel+" model: "+model_no + " resolution: "+resolution+" Device id: "+device_id);
-
-
         new ServerUpdate(this).execute();
 
     }
@@ -265,7 +308,7 @@ public class BrightnessActivity extends AppCompatActivity {
         Camera.Parameters param;
         camera = Camera.open(1);
         try {
-            camera.setDisplayOrientation(90);
+            camera.setDisplayOrientation(0);
             camera.setPreviewDisplay(holder);
             camera.startPreview();
 
@@ -309,13 +352,72 @@ public class BrightnessActivity extends AppCompatActivity {
         tv_count.setText(String.valueOf(curBrightnessValue));
     }
 
+    public  boolean checkPermissionOnButtonClick() {
+        int hasWritePermission = ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE);
+        int hasRecordPermission = ContextCompat.checkSelfPermission(this, RECORD_AUDIO);
+        int hasCameraPermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
+
+        if (hasCameraPermission != PackageManager.PERMISSION_GRANTED)
+           return false;
+        else if (hasWritePermission != PackageManager.PERMISSION_GRANTED)
+            return false;
+         else if (hasRecordPermission != PackageManager.PERMISSION_GRANTED)
+            return false;
+
+        return true;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void checkCameraAndStoragePermission() {
-        int hasRecordPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_SETTINGS);
+    public  void checkPermission() {
+        int hasWritePermission = ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE);
+        int hasRecordPermission = ContextCompat.checkSelfPermission(this, RECORD_AUDIO);
+        int hasCameraPermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
+
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        if (hasCameraPermission != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(android.Manifest.permission.CAMERA);
+
+        if (hasWritePermission != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (hasRecordPermission != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(android.Manifest.permission.RECORD_AUDIO);
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), RequestPermissionCode);
+        }
+    }
+
+
+
+   /* @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case RequestPermissionCode:
+                if (grantResults.length > 0) {
+                    boolean StoragePermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean RecordPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean CameraPermission = grantResults[2] == PackageManager.PERMISSION_GRANTED;
+
+                    if (StoragePermission && RecordPermission && CameraPermission) {
+                        Toast.makeText(this, "Permission Granted", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show();
+                    }
+                }
+                break;
+        }
+    }
+*/
+   /* private void checkCameraAndStoragePermission() {
+        int hasWritePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_SETTINGS);
         int hasCameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         int hasStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int hasReadPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        int hasRecordPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+
 
         List<String> listPermissionsNeeded = new ArrayList<>();
 
@@ -325,18 +427,21 @@ public class BrightnessActivity extends AppCompatActivity {
         if (hasStoragePermission != PackageManager.PERMISSION_GRANTED)
             listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (hasRecordPermission != PackageManager.PERMISSION_GRANTED)
+        if (hasWritePermission != PackageManager.PERMISSION_GRANTED)
             listPermissionsNeeded.add(Manifest.permission.WRITE_SETTINGS);
 
         if (hasReadPermission != PackageManager.PERMISSION_GRANTED)
             listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE);
+
+        if (hasRecordPermission != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(Manifest.permission.RECORD_AUDIO);
 
         if (!listPermissionsNeeded.isEmpty()) {
             requestPermissions(listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), PERMISSION_REQUEST_CODE);
             return;
         }
 
-    }
+    }*/
 
     private class ServerUpdate extends AsyncTask<String,String,String> {
 
@@ -405,5 +510,203 @@ public class BrightnessActivity extends AppCompatActivity {
             System.out.println("SUCCESSSS DONE:"+s.toString());
 
         }
+    }
+
+    private void releaseMediaRecorder() {
+        if (mediaRecorder != null) {
+            mediaRecorder.reset();
+            mediaRecorder.release();
+        }
+    }
+
+    private void stopRecording() {
+        if (mediaRecorder != null) {
+
+            try {
+                mIsRecordingVideo = false;
+                mediaRecorder.stop();
+                mediaRecorder.reset();
+
+
+            } catch (RuntimeException stopException) {
+            }
+            releaseMediaRecorder();
+        }
+    }
+
+    private void startRecording() {
+        if (mediaRecorder != null) {
+            mIsRecordingVideo = true;
+            try{
+              //  setUpMediaRecorder();
+                if (prepareVideoRecorder()) {
+                    // Camera is available and unlocked, MediaRecorder is prepared,
+                    // now you can start recording
+                    mediaRecorder.start();
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+
+        }
+    }
+
+    public void triggerRecording() {
+        if (mIsRecordingVideo) {
+            Log.d("", "Recording stopped");
+            stopRecording();
+        } else {
+            Log.d("", "Recording starting");
+            startRecording();
+        }
+    }
+
+    private Camera getCameraInstance() {
+        Camera c = null;
+        for (int camNo = 0; camNo < Camera.getNumberOfCameras(); camNo++) {
+            Camera.CameraInfo camInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(camNo, camInfo);
+
+            if (camInfo.facing == (Camera.CameraInfo.CAMERA_FACING_FRONT)) {
+                try {
+                    c = Camera.open(camNo);
+                } catch (Exception exception) {
+                }
+            }
+        }
+        return c;
+    }
+
+    private boolean prepareVideoRecorder(){
+
+        mCamera = getCameraInstance();
+        mediaRecorder = new MediaRecorder();
+
+        // Step 1: Unlock and set camera to MediaRecorder
+        mCamera.unlock();
+        mediaRecorder.setCamera(mCamera);
+
+        // Step 2: Set sources
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+        // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
+        mediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+
+        // Step 4: Set output file
+        mediaRecorder.setOutputFile(getVideoFilePath(this));
+
+        // Step 5: Set the preview output
+        mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
+
+        // Step 6: Prepare configured MediaRecorder
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            Log.d("TAG", "IllegalStateException preparing MediaRecorder: " + e.getMessage());
+            releaseMediaRecorder();
+            return false;
+        } catch (IOException e) {
+            Log.d("TAG", "IOException preparing MediaRecorder: " + e.getMessage());
+            releaseMediaRecorder();
+            return false;
+        }
+        return true;
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void setUpMediaRecorder() throws IOException, CameraAccessException {
+        CameraManager manager = (CameraManager) this.getSystemService(Context.CAMERA_SERVICE);
+        String cameraId = manager.getCameraIdList()[1];
+
+        CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+        StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        if (map == null) {
+            throw new RuntimeException("Cannot get available preview/video sizes");
+        }
+
+        mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
+
+        mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+
+        /*mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);*/
+        mediaRecorder.setCamera(camera);
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        mediaRecorder.setOutputFile(getVideoFilePath(this));
+        mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
+
+        //  mediaRecorder.setOutputFile(getVideoFilePath(getContext()));
+        mediaRecorder.setVideoEncodingBitRate(10000000);
+        mediaRecorder.setVideoFrameRate(5);
+        mediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
+        int rotation = this.getWindowManager().getDefaultDisplay().getRotation();
+
+        switch (mSensorOrientation) {
+            case SENSOR_ORIENTATION_DEFAULT_DEGREES:
+                mediaRecorder.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation));
+                break;
+            case SENSOR_ORIENTATION_INVERSE_DEGREES:
+                mediaRecorder.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation));
+                break;
+        }
+
+        mediaRecorder.prepare();
+        mediaRecorder.start();
+
+
+     /*   mediaRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+
+        mediaRecorder.setOutputFile(getVideoFilePath(getContext()));
+        mediaRecorder.setVideoEncodingBitRate(10000000);
+        mediaRecorder.setVideoFrameRate(30);
+        mediaRecorder.setVideoSize(480, 640);
+        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        //int rotation = mContext.getWindowManager().getDefaultDisplay().getRotation();
+        //int orientation = ORIENTATIONS.get(rotation);
+        mediaRecorder.setOrientationHint(ORIENTATIONS.get(0));
+        mediaRecorder.prepare();
+
+        mediaRecorder.setOnErrorListener(new MediaRecorder.OnErrorListener() {
+            @Override
+            public void onError(MediaRecorder mr, int what, int extra) {
+                Log.e("ERROR", mr.toString() + " : what[" + what + "]" + " Extras[" + extra + "]");
+            }
+        });
+
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            //Log.d(LOGTAG, "mediaRecorder : " + e.getLocalizedMessage());
+
+        } catch (IOException e) {
+            //Log.d(LOGTAG, "mediaRecorder : " + e.getLocalizedMessage());
+        }*/
+
+    }
+
+    private static android.util.Size chooseVideoSize(android.util.Size[] choices) {
+        for (android.util.Size size : choices) {
+            if (size.getWidth() == size.getHeight() * 4 / 3 && size.getWidth() <= 1080) {
+                return size;
+            }
+        }
+        Log.e("", "Couldn't find any suitable video size");
+        return choices[choices.length - 1];
+    }
+
+    private String getVideoFilePath(Context context) {
+        final File dir = context.getExternalFilesDir(null);
+        return (dir == null ? "" : (dir.getAbsolutePath() + "/")) +"MyVideos1111.mp4";
     }
 }

@@ -1,0 +1,67 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:keepScreenOn="true"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/medium_text"
+        android:text="Service using Messeging"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/tv_bind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/app_golden"
+        android:padding="@dimen/space_20"
+        android:text="Bind Service"
+        android:textColor="@color/black"
+        android:onClick="startServiceBinding"/>
+
+    <TextView
+        android:id="@+id/tv_task_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/app_golden"
+        android:padding="@dimen/space_20"
+        android:layout_marginTop="@dimen/space"
+        android:text="Task 1"
+        android:textColor="@color/black"
+        android:onClick="runTask_1"/>
+
+    <TextView
+        android:id="@+id/tv_task_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/app_golden"
+        android:padding="@dimen/space_20"
+        android:layout_marginTop="@dimen/space"
+        android:text="Task 1"
+        android:textColor="@color/black"
+        android:onClick="runTask_2"/>
+
+
+    <TextView
+        android:id="@+id/tv_unbind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/app_golden"
+        android:padding="@dimen/space_20"
+        android:layout_marginTop="@dimen/space"
+
+        android:text="Unbind Service"
+        android:textColor="@color/black"
+        android:onClick="stopServiceBinding"/>
+
+
+</LinearLayout>

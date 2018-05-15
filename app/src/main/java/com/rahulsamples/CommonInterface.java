@@ -7,7 +7,5 @@ import java.util.Objects;
  */
 
 public interface CommonInterface {
-
     void isOutsideOfThresholdRectangle(Object obj);
-
 }

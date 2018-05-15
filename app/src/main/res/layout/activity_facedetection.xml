@@ -1,10 +1,10 @@
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/topLayout"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    android:orientation="vertical">
+
 
     <com.rahulsamples.facedetection.CameraSourcePreview
         android:id="@+id/preview"
@@ -18,15 +18,24 @@
 
     </com.rahulsamples.facedetection.CameraSourcePreview>
 
+    <TextView
+        android:id="@+id/tv_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/app_golden"
+        android:padding="@dimen/space_vvlarge"
+        android:text="Start"
+        android:textColor="@color/black" />
 
 
-        <LinearLayout
-            android:id="@+id/ll_threshold_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/space_28"
-            android:background="@drawable/background_curved_edges_outline_only_blue"
-            android:orientation="horizontal" />
+    <LinearLayout
+        android:id="@+id/ll_threshold_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/space_28"
+        android:background="@drawable/background_curved_edges_outline_only_blue"
+        android:orientation="horizontal" />
 
 
 </FrameLayout>

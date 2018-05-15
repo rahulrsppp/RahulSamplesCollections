@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_horizontal_margin">
+
+            <Button
+                android:id="@+id/btn_activate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+               android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                android:background="@color/discussion_form_toolbar"
+                android:gravity="center"
+                android:text="@string/activate_call_cancel"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text"
+                android:onClick="activate"/>
+
+            <Button
+                android:id="@+id/btn_deactivate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/button_disable"
+                android:text="@string/deactivate_call_cancel"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/text"
+                android:onClick="deactivate"/>
+
+</LinearLayout>

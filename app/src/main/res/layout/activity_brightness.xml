@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/black"
     android:orientation="vertical"
-    android:padding="@dimen/activity_horizontal_margin"
-    tools:context="com.rahulsamples.SocialLoginActivity">
+    android:padding="@dimen/activity_horizontal_margin">
 
     <SurfaceView
         android:id="@+id/sv_camera"

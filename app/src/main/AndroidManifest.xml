@@ -6,17 +6,32 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera" />
+
     <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="com.sonyericsson.home.permission.BROADCAST_BADGE" />
+    <uses-permission android:name="android.permission.RECORD_VIDEO" />
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
+    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
-    <!--for htc-->
-    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS"/>
-    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT"/>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_INCOMING_CALLS" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <!-- for htc -->
+    <uses-permission android:name="com.htc.launcher.permission.READ_SETTINGS" />
+    <uses-permission android:name="com.htc.launcher.permission.UPDATE_SHORTCUT" />
 
     <application
         android:allowBackup="true"
@@ -25,30 +40,45 @@
         android:roundIcon="@mipmap/app"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.NoActionBar">
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="face" />
 
-        <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="face"/>
-
-
-        <activity android:name=".HomeActivity"
+        <activity
+            android:name=".HomeActivity"
             android:screenOrientation="portrait">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".BrightnessActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".FaceDetectionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".videoFaceDetection.CameraActivity"
+            android:screenOrientation="portrait" />
 
-        <activity android:name=".SocialLoginActivity"
-            android:screenOrientation="portrait">
+        <activity
+            android:name=".disconnectCall.CallHandlingActivity"
+            android:screenOrientation="portrait" />
 
-        </activity>
+        <activity
+            android:name=".service_sample.BoundServiceActivity"
+            android:screenOrientation="portrait" />
 
-        <activity android:name=".BrightnessActivity"
-            android:screenOrientation="portrait"/>
+        <service android:name=".service_sample.BoundServiceWithMessenger"
+            android:exported="false"/>
 
-        <activity android:name=".FaceDetectionActivity"
-            android:screenOrientation="portrait"/>
+        <receiver android:name=".disconnectCall.CallBarring">
+            <intent-filter  android:priority="100" >
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

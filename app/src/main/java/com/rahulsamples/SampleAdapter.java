@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -27,7 +27,7 @@ public class SampleAdapter extends RecyclerView.Adapter<SampleAdapter.ViewHolder
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        @Bind(R.id.tv_sample)
+        @BindView(R.id.tv_sample)
         TextView tv_sample;
 
 

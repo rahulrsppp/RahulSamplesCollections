@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -37,18 +39,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.Manifest.permission_group.CAMERA;
+import static com.rahulsamples.BrightnessActivity.RequestPermissionCode;
 
 public class FaceDetectionActivity extends AppCompatActivity implements CommonInterface {
 
     private static final String LOGTAG = FaceDetectionActivity.class.getSimpleName();
-    @Bind(R.id.preview)
+    @BindView(R.id.preview)
     CameraSourcePreview mPreview;
-    @Bind(R.id.faceOverlay)
+    @BindView(R.id.faceOverlay)
     GraphicOverlay mGraphicOverlay;
-    @Bind(R.id.ll_threshold_view)
+    @BindView(R.id.ll_threshold_view)
     LinearLayout ll_threshold_view;
+
+    @BindView(R.id.tv_record)
+    TextView tv_record;
     private CameraSource mCameraSource;
 
     private static final int RC_HANDLE_GMS = 9001;
@@ -88,11 +99,15 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
 
         // Check for the camera permission before accessing the camera.  If the
         // permission is not granted yet, request permission.
-        int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        /*int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (rc == PackageManager.PERMISSION_GRANTED) {
             createCameraSource();
         } else {
             requestCameraPermission();
+        }*/
+
+        if (!checkPermission()) {
+            requestPermission();
         }
 
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) ll_threshold_view.getLayoutParams();
@@ -121,7 +136,59 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
                 " Threshold Width: " + layoutWidth
         );
 
+        if (!checkPermission()) {
+            createCameraSource();
+        }
+
+
     }
+
+    ///////////////////////////////////////////////////////////////
+
+    public boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(this,
+                WRITE_EXTERNAL_STORAGE);
+        int result1 = ContextCompat.checkSelfPermission(this,
+                RECORD_AUDIO);
+        int result2 = ContextCompat.checkSelfPermission(this,
+                CAMERA);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED && result2 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this, new
+                String[]{WRITE_EXTERNAL_STORAGE, RECORD_AUDIO, android.Manifest.permission.CAMERA}, RequestPermissionCode);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case RequestPermissionCode:
+                if (grantResults.length > 0) {
+                    boolean StoragePermission = grantResults[0] ==
+                            PackageManager.PERMISSION_GRANTED;
+                    boolean RecordPermission = grantResults[1] ==
+                            PackageManager.PERMISSION_GRANTED;
+                    boolean CameraPermission = grantResults[2] ==
+                            PackageManager.PERMISSION_GRANTED;
+
+                    if (StoragePermission && RecordPermission && CameraPermission) {
+                        Toast.makeText(this, "Permission Granted",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show();
+                    }
+                }
+                break;
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////
+
+
+
 
     /**
      * Handles the requesting of the camera permission.  This includes
@@ -191,11 +258,11 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
         String type = (String) object;
         if (appPreferenceManager.getPositionCheckStatus()) {
             if(type.equalsIgnoreCase("Far")){
-                showDialog("User is so far from camera");
+                //showDialog("User is so far from camera");
             }else if (type.equalsIgnoreCase("Multiple Faces")){
-                showDialog("Double faces detected");
+              //  showDialog("Double faces detected");
             }else {
-                showDialog(getString(R.string.wrong_position));
+              //  showDialog(getString(R.string.wrong_position));
             }
         }
     }
@@ -273,7 +340,7 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
         public void onMissing(FaceDetector.Detections<Face> detectionResults) {
             mOverlay.remove(mFaceGraphic);
             if (appPreferenceManager.getPositionCheckStatus()) {
-                showDialog("USER ABSENT");
+               // showDialog("USER ABSENT");
             }
         }
 
@@ -388,6 +455,19 @@ public class FaceDetectionActivity extends AppCompatActivity implements CommonIn
     public int getLayoutWidth() {
         return layoutWidth;
     }
+
+    @OnClick(R.id.tv_record)
+    void record() {
+
+        if(CameraSourcePreview.mIsRecordingVideo){
+            tv_record.setText("Start");
+        }else{
+            tv_record.setText("stop");
+
+        }
+        mPreview.triggerRecording();
+    }
+
 
 
 }

@@ -10,4 +10,23 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="ok">ok</string>
+
+
+
+    <string name="lorem_ipsum_short">Lorem ipsum dolor sit amet, consectetur adipisicing elit. </string>
+    <string name="lorem_ipsum_long">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+        nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </string>
+
+    <string name="noboringactionbar_title">Beautiful picture</string>
+    <string name="loreum">Quam ob rem vita quidem talis fuit vel fortuna vel gloria, ut nihil posset accedere, moriendi
+        autem sensum celeritas abstulit; quo de genere mortis difficile dictu est; quid homines suspicentur, videtis;
+        hoc vere tamen licet dicere, P. Scipioni ex multis diebus, quos in vita celeberrimos laetissimosque viderit,
+        illum diem clarissimum fuisse, cum senatu dimisso domum reductus ad vesperum est a patribus conscriptis, populo Romano,
+        sociis et Latinis, pridie quam excessit e vita, ut ex tam alto dignitatis gradu ad superos videatur deos potius quam ad inferos pervenisse.
+        Quam ob rem id primum videamus, si placet, quatenus amor in amicitia progredi debeat. Numne, si Coriolanus habuit amicos, ferre contra patriam
+        arma illi cum Coriolano debuerunt.</string>
+    <string name="activate_call_cancel">Activate Call Cancel</string>
+    <string name="deactivate_call_cancel">Deactivate</string>
+
 </resources>

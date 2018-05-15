@@ -17,7 +17,7 @@
         android:label="Tests for com.linkedin.android.mobilesdk.test"
         android:targetPackage="com.linkedin.android.mobilesdk.test" />
 
-    <application>
+    <application android:debuggable="true" >
         <uses-library android:name="android.test.runner" />
     </application>
 
