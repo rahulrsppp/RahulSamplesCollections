@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_multiple_marker"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Multiple Markers"
+            android:textSize="@dimen/text_low"
+            android:textStyle="bold"
+            android:onClick="showMultipleMarker"
+            />
+
+        <Button
+            android:id="@+id/btn_marker_cluster"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Marker Clustering"
+            android:textSize="@dimen/text_low"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:onClick="showMarkerCluster"
+            />
+
+        <Button
+            android:id="@+id/btn_heatMap"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="HeatMap"
+            android:textSize="@dimen/text_low"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:onClick="showHeatMap"
+
+            />
+
+
+
+    </LinearLayout>
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.rahulsamples.googleMap.MapsActivity" />
+</LinearLayout>
