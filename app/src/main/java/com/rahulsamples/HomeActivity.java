@@ -10,6 +10,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.widget.Toast;
 
 import com.rahulsamples.disconnectCall.CallHandlingActivity;
+import com.rahulsamples.googleMap.MapsActivity;
 import com.rahulsamples.model.AppPreferenceManager;
 import com.rahulsamples.service_sample.BoundServiceActivity;
 
@@ -59,6 +60,7 @@ public class HomeActivity extends AppCompatActivity {
         sampleList.add("Profile Animation");
         sampleList.add("Bound Service");
         sampleList.add("Call Handling");
+        sampleList.add("Google Map");
         sampleAdapter.notifyDataSetChanged();
     }
 
@@ -85,8 +87,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case RequestPermissionCode:
                 if (grantResults.length > 0) {
@@ -133,6 +134,9 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 else if(sample.equalsIgnoreCase("Call Handling")){
                     intent=new Intent(HomeActivity.this,CallHandlingActivity.class);
+                    startActivity(intent);
+                } else if(sample.equalsIgnoreCase("Google Map")){
+                    intent=new Intent(HomeActivity.this, MapsActivity.class);
                     startActivity(intent);
                 }
 

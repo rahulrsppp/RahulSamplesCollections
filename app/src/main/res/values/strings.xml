@@ -12,7 +12,6 @@
     <string name="ok">ok</string>
 
 
-
     <string name="lorem_ipsum_short">Lorem ipsum dolor sit amet, consectetur adipisicing elit. </string>
     <string name="lorem_ipsum_long">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
         eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
@@ -28,5 +27,6 @@
         arma illi cum Coriolano debuerunt.</string>
     <string name="activate_call_cancel">Activate Call Cancel</string>
     <string name="deactivate_call_cancel">Deactivate</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>
