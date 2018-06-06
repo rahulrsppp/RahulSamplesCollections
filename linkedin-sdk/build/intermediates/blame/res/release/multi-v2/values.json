@@ -1,0 +1,48 @@
+{
+    "logs": [
+        {
+            "outputFile": "C:\\Users\\RahulPp\\AndroidStudioProjects\\RahulSampleCollections\\RahulSamplesCollections\\linkedin-sdk\\build\\intermediates\\incremental\\mergeReleaseResources\\merged.dir\\values\\values.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\RahulPp\\AndroidStudioProjects\\RahulSampleCollections\\RahulSamplesCollections\\linkedin-sdk\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "4,3,2,1",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "299,232,92,17",
+                        "endColumns": "61,65,138,73",
+                        "endOffsets": "356,293,226,86"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,117,183,322",
+                        "endColumns": "61,65,138,73",
+                        "endOffsets": "112,178,317,391"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "C:\\Users\\RahulPp\\AndroidStudioProjects\\RahulSampleCollections\\RahulSamplesCollections\\linkedin-sdk\\build\\intermediates\\res\\merged\\release\\values\\values.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\RahulPp\\AndroidStudioProjects\\RahulSampleCollections\\RahulSamplesCollections\\linkedin-sdk\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "4,3,2,1",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "299,232,92,17",
+                        "endColumns": "61,65,138,73",
+                        "endOffsets": "356,293,226,86"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,117,183,322",
+                        "endColumns": "61,65,138,73",
+                        "endOffsets": "112,178,317,391"
+                    }
+                }
+            ]
+        }
+    ]
+}

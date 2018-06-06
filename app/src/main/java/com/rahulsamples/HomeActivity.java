@@ -91,8 +91,7 @@ public class HomeActivity extends AppCompatActivity {
         switch (requestCode) {
             case RequestPermissionCode:
                 if (grantResults.length > 0) {
-                    boolean StoragePermission = grantResults[0] ==
-                            PackageManager.PERMISSION_GRANTED;
+                    boolean StoragePermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     boolean RecordPermission = grantResults[1] ==
                             PackageManager.PERMISSION_GRANTED;
                     boolean CameraPermission = grantResults[2] ==

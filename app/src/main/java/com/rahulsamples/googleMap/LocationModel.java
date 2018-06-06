@@ -18,6 +18,9 @@ public class LocationModel implements ClusterItem {
         this.snippet = snippet;
         this.latlng = latlng;
     }
+    public LocationModel( LatLng latlng) {
+        this.latlng = latlng;
+    }
 
     @Override
     public LatLng getPosition() {
